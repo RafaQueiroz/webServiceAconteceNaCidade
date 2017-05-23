@@ -51,10 +51,10 @@
 	 //Adiciona usuários
 	 $app->post("/usuario/adiciona", function(Request $request, Response $response){
 
-	 	$name = $request->getParam('name');
+	 	$name = $request->getParam('nome');
 	 	$email = $request->getParam('email');
-	 	$password = $request->getParam('password');
-	 	$password2 = $request->getParam('password2');
+	 	$password = $request->getParam('senha');
+	 	$password2 = $request->getParam('senha2');
 
 	 	if($password != $password2)
 	 		echo '{error: {text: "senhas diferem"}}';
@@ -114,4 +114,41 @@
 
      });
 
-	 $app->post("/usuarios/atualiza")
+	 $app->post("/usuarios/atualizar", function (Request $request, Response $response){
+
+	     $usuarioId = $request->getParam('id');
+	     $nome  = $request->getParam('nome');
+	     $email = $request->getParam('email');
+	     $senha = $request->getParam('senha');
+	     $senha2 =$request->getParam('senha2');
+
+
+	     if(!isset($senha) || !isset($senha2) || $senha != $senha2)
+	         return '{aviso: {text: "Senhas são diferentes"}}';
+
+	     $sql = " \n".
+            "UPDATE \n".
+            "  usuario \n".
+            "SET \n".
+            "  nome = :nome, email = :email, senha = :senha \n".
+            "WHERE \n".
+            "  id = :usuario_id";
+
+	     try{
+	         $db = new Db();
+	         $pdo = $db->connect();
+	         $stmt = $pdo->prepare($sql);
+
+	         $stmt->execute(array(
+	            ':nome' => $nome,
+                ':email' => $email,
+                ':senha' => $senha,
+                ':usuario_id' => $usuarioId
+             ));
+
+             return '{aviso: {text: "usuario atualizado"}}';
+
+         } catch (PDOException $e){
+             return '{error: {text: "Não foi possível remover o usuário: '.$e->getMessage().'"}}';
+         }
+     });
