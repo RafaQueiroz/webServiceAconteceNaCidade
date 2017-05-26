@@ -2,12 +2,14 @@
 	use \PSR\Http\Message\ServerRequestInterface as Request;
 	use \PSR\Http\Message\ResponseInterface as Response;
 
+
 	require '../vendor/autoload.php';
 
-	require '../src/config/Db.php';		
+    require '../src/config/Db.php';
 
 
-	$app = new \Slim\App([
+
+$app = new \Slim\App([
 		'settings' => [
 			'displayErrorDetails' => true
 		]

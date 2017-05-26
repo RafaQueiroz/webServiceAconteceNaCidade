@@ -3,89 +3,59 @@
 	use \PSR\Http\Message\ServerRequestInterface as Request;
 	use \PSR\Http\Message\ResponseInterface as Response;
 
+
 	require '../vendor/autoload.php';
+
+    require '../src/dao/UsuarioDao.php';
 
 	$app = new \Slim\App;
 
-
-	$app->get('/usuarios', function(Request $request, Response $response){
-	   $sql = "SELECT * FROM usuario";
-
-	   try{
-	       $db = new Db();
-	       $pdo = $db->connect();
-	       $stmt = $pdo->query($sql);
-
-	       $usuarios = $stmt->fetchAll();
-
-	       echo json_encode($usuarios);
-
-       } catch (PDOException $exception){
-	       echo $exception->getMessage();
-       }
-
-    });
-
 	$app->get('/usuarios/{id}', function(Request $request, Response $response){
-		$id = $request->getAttribute('id');
-		$sql = "SELECT * FROM usuario WHERE id = :usuarioId";
+		$usuarioId = $request->getAttribute('id');
 
-		try{
-			$db = new Db();
-			$pdo = $db->connect();
-			$stmt = $pdo->prepare($sql);
+        $usuarioDao = new \Dao\UsuarioDao();
 
-			$stmt->bindParam(':usuarioId', $id);
-            $stmt->execute();
+		if(is_null($usuarioId) || !is_numeric($usuarioId))
+		    return '{error: {text: "Erro! O id do usuário deve ser numérico"}}';
 
-            $db = null;
-			$usuario = $stmt->fetchAll(PDO::FETCH_OBJ);
+		try {
+			$usuario = $usuarioDao->getUsuarioById($usuarioId);
 
-			echo json_encode($usuario);
+			if($usuario == null)
+			    return '{error: {text: "Nenhum usuário foi encotrado"}}';
 
-		} catch(PDOException $e){
-			echo '{error: {text: "Não foi possível cadastrar o usuário: '.$e->getMessage().'"}}';
+			return json_encode($usuario);
+        } catch(Exception $e){
+			return '{error: {text: "Não foi possível cadastrar o usuário: '.$e->getMessage().'"}}';
 		}
 	});
 
 	 //Adiciona usuários
-	 $app->post("/usuario/adiciona", function(Request $request, Response $response){
+	 $app->post("/usuarios/adicionar", function(Request $request, Response $response){
 
-	 	$name = $request->getParam('nome');
+	 	$nome = $request->getParam('nome');
 	 	$email = $request->getParam('email');
-	 	$password = $request->getParam('senha');
-	 	$password2 = $request->getParam('senha2');
+	 	$senha = $request->getParam('senha');
+	 	$senha2 = $request->getParam('senha2');
 
-	 	if($password != $password2)
-	 		echo '{error: {text: "senhas diferem"}}';
+	 	if($senha != $senha2)
+	 		return '{error: {text: "senhas diferem"}}';
 
+	 	$usuarioDao = new \Dao\UsuarioDao();
 
-	 	// // if(emailAlreadyExists($email))
-	 	// 	// echo '{error: {text: "E-mail já foi cadastrado"}}';
+	 	$usuarioJaCadastrado = $usuarioDao->getUsuarioByEmail($email);
 
-	 	$sql = "INSERT INTO usuario(nome, email, senha) VALUES (:nome, :email, :senha)";
-	 	try{
-	 		$db = new Db();
-	 		$pdo = $db->connect();
-	 		$stmt = $pdo->prepare($sql);
-	 		$stmt->execute(array(
-	 			':nome' => $name,
-	 			':email' => $email,
-	 			':senha' => $password
-	 		));
+        if($usuarioJaCadastrado)
+            return '{error: {text: "Este e-mail já está cadastrado. "}}';
 
-	 		$db  = null;
+        try{
+            $usuarioDao = new \Dao\UsuarioDao();
+            $usuarioDao->insereUsuario($nome, $email, $senha);
+        } catch (PDOException $e){
+            return '{error: {text: "Não foi possível cadastrar o usuário: '.$e->getMessage().'"}}';
+        }
 
-            echo '{aviso: {text: "Usuário cadastrado com sucesso"}}';
-
-	 	} catch(PDOException $e) {
-	 		echo '{error: {text: "Não foi possível cadastrar o usuário: '.$e->getMessage().'"}}';
-	 	}
-
-	 	/*
-	 	* Avaliar como salvar a imagem do usuário
-	 	*/
-	 	//$imagem = $request->getParam('imagem');
+         return '{aviso: {text: "Usuário cadastrado com sucesso"}}';
 	 });
 
 	 $app->post("/usuarios/deletar", function(Request $request, Response $response){
@@ -122,8 +92,7 @@
 	     $senha = $request->getParam('senha');
 	     $senha2 =$request->getParam('senha2');
 
-
-	     if(!isset($senha) || !isset($senha2) || $senha != $senha2)
+	     if(!isset($senha) || !isset($senha2) || ($senha != $senha2))
 	         return '{aviso: {text: "Senhas são diferentes"}}';
 
 	     $sql = " \n".
