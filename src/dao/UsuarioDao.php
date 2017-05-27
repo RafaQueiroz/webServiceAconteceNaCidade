@@ -51,6 +51,22 @@ class UsuarioDao {
         return $usuario;
     }
 
+    public function getUsuarioByEmailSenha(string $usuarioEmail, String $senha){
+
+        $sql = "SELECT * FROM usuario WHERE email = :usuarioEmail AND senha = :senha";
+
+        $pdo = $this->db->connect();
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam("usuarioEmail", $usuarioEmail);
+        $stmt->bindParam("senha", $senha);
+
+        $stmt->execute();
+        $this->db = null;
+        $usuario = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        return $usuario;
+    }
+
     public function insereUsuario(string $nome, string $email, string $senha){
 
         try{

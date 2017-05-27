@@ -10,6 +10,32 @@
 
 	$app = new \Slim\App;
 
+    $app->post('/usuarios/login', function (Request $request, Response $response){
+
+        $email = $request->getParam('email');
+        $senha = $request->getParam('senha');
+
+        if($email == null || $email == '' || $senha == null || $senha == '')
+            return '{error: {text: "E-mail ou senha inválidos."}}';
+
+        $usuarioDao = new \Dao\UsuarioDao();
+
+        try{
+            $usuario = $usuarioDao->getUsuarioByEmailSenha($email, $senha);
+
+            if($usuario == null)
+                return '{error: {text: "E-mail ou senha incorreto."}}';
+
+            $token = md5($email+$senha);
+
+            return " {token: {'$token'}";
+
+        } catch (PDOException $e) {
+            return '{error: {text: "Não foi possivel completar a requisição: '.$e->getMessage().'"}}';
+        }
+
+    });
+
 	$app->get('/usuarios/{id}', function(Request $request, Response $response){
 		$usuarioId = $request->getAttribute('id');
 
