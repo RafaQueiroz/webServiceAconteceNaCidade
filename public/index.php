@@ -24,6 +24,6 @@ $app = new \Slim\App([
 	//ROTAS
 	require '../src/rotas/usuarios.php';
 
-	require  '../src/rotas/eventos.php';
+	require '../src/rotas/eventos.php';
 
 	$app->run();

@@ -50,3 +50,24 @@
 
         return '{aviso: {text:"Evento cadastrado com sucesso"}';
     });
+
+    $app->get('/eventos/{eventoId}', function(Request $request, Response $response){
+        $eventoId = $request->getAttribute('eventoId');
+
+        if(!isset($eventoId))
+            return '{error: {text:"Nenhum id foi fornecido"}';
+
+        $eventoDao = new \Dao\EventoDao();
+
+        try{
+            $evento = $eventoDao->getEventoById($eventoId);
+
+            if($evento == null)
+                return '{error: {text:"Nenhum evento foi encotrado"}';
+
+            return json_encode($evento);
+        } catch (PDOException $e){
+            return '{error: {text:"'.$e->getMessage().'""}';
+        }
+
+    });

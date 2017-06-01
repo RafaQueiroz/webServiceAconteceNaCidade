@@ -41,5 +41,24 @@ class EventoDao {
 
     }
 
+    public function getEventoById(int $eventoId){
+        $sql = "SELECT 
+                  *
+                FROM 
+                  evento
+                WHERE
+                  id = :eventoId";
+
+        $pdo = $this->db->connect();
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+           ':eventoId' => $eventoId
+        ));
+
+        $evento =$stmt-> fetch(PDO::FETCH_OBJ);
+
+        return $evento;
+    }
 
 }
