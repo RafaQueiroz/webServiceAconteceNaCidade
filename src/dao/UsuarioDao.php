@@ -9,10 +9,8 @@ class UsuarioDao {
 
     /**
      * UsuarioDao constructor.
-     * @param $db
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->db = new \Config\Db();
     }
 
@@ -75,7 +73,7 @@ class UsuarioDao {
             $pdo = $this->db->connect();
             $stmt = $pdo->prepare($sql);
             $stmt->execute(array(
-                ':nome' => $nome,
+                ':nome'  => $nome,
                 ':email' => $email,
                 ':senha' => $senha
             ));
@@ -85,6 +83,29 @@ class UsuarioDao {
 
         }
 
+    }
+
+    public function getUsuarioByToken(string $token){
+        $sql = "SELECT 
+                  u.* 
+                FROM 
+                  usuario_token ut 
+                INNER JOIN
+                  usuario u
+                ON 
+                  ut.usuario_id = u.id
+                WHERE 
+                  ut.token = :token";
+
+        $pdo = $this->db->connect();
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(":token", $token);
+
+        $stmt->execute();
+        $this->db = null;
+        $usuario = $stmt->fetch(PDO::FETCH_OBJ);
+
+        return $usuario;
     }
 
 
