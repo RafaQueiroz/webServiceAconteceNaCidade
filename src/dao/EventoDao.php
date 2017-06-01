@@ -61,4 +61,36 @@ class EventoDao {
         return $evento;
     }
 
+    public function atualizaEvento(int $eventoId, string $nome, string $descricao, string $endereco,
+                                 int $proprietarioId,\DateTime $dataInicio, \DateTime $dataFim){
+
+        $sql = "UPDATE 
+                    evento 
+                SET
+                    nome = :nome, descricao = :descricao, endereco = :endereco,
+                    proprietario_id = :proprietarioId, data_inicio = FROM_UNIXTIME(:dataInicio),
+                    data_fim = FROM_UNIXTIME(:dataFim)
+                WHERE 
+                    id = :eventoId";
+
+        try{
+            $pdo = $this->db->connect();
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(array(
+                ':eventoId'       => $eventoId,
+                ':nome'           => $nome,
+                ':descricao'      => $descricao,
+                ':endereco'       => $endereco,
+                ':proprietarioId' => $proprietarioId,
+                ':dataInicio'     => $dataInicio->getTimestamp(),
+                ':dataFim'        => $dataFim->getTimestamp()
+            ));
+
+            $this->db = null;
+        } catch (PDOException $e){
+            echo $e->getMessage();
+        }
+
+    }
+
 }
