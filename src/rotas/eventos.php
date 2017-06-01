@@ -51,13 +51,24 @@
         return '{aviso: {text:"Evento cadastrado com sucesso"}';
     });
 
-    $app->get('/eventos/{eventoId}', function(Request $request, Response $response){
+    $app->get('/eventos/{token}/{eventoId}', function(Request $request, Response $response){
+
+        $usuarioToken = $request->getAttribute('token');
         $eventoId = $request->getAttribute('eventoId');
 
-        if(!isset($eventoId))
-            return '{error: {text:"Nenhum id foi fornecido"}';
+        if(!isset($usuarioToken))
+            return '{error: {text:"o token de acesso do usuário deve ser informado"}}';
 
+        if(!isset($eventoId))
+            return '{error: {text:"o id do evento deve ser informado"}}';
+
+        $usuarioDao = new \Dao\UsuarioDao();
         $eventoDao = new \Dao\EventoDao();
+
+        $usuario = $usuarioDao->getUsuarioByToken($usuarioToken);
+
+        if($usuario == null)
+            return '{error: {text:"O token não pertence a nenhum usuário cadastrado"}}';
 
         try{
             $evento = $eventoDao->getEventoById($eventoId);
@@ -122,3 +133,63 @@
 
         return '{aviso: {text:"Evento atualizado com sucesso"}';
     });
+
+    $app->get('/eventos/busca/{token}/{nomeEvento}', function(Request $request, Response $response){
+
+        $usuarioToken = $request->getAttribute('token');
+        $nomeEvento = $request->getAttribute('nomeEvento');
+
+        if(!isset($usuarioToken))
+            return '{error: {text:"o token de acesso do usuário deve ser informado"}}';
+
+        if(!isset($nomeEvento))
+            return '{}';
+
+        $usuarioDao = new \Dao\UsuarioDao();
+        $eventoDao = new \Dao\EventoDao();
+
+        $usuario = $usuarioDao->getUsuarioByToken($usuarioToken);
+
+        if($usuario == null)
+            return '{error: {text:"O token não pertence a nenhum usuário cadastrado"}}';
+
+        try{
+            $evento = $eventoDao->getEventosByNome($nomeEvento);
+
+            if($evento == null)
+                return '{}';
+
+            return json_encode($evento);
+        } catch (PDOException $e){
+            return '{error: {text:"'.$e->getMessage().'""}';
+        }
+    });
+
+    $app->get('/eventos/proprietario/{usuarioToken}', function(Request $request, Response $response){
+
+        $usuarioToken = $request->getAttribute('usuarioToken');
+
+        if(!isset($usuarioToken))
+            return '{error: {text:"o token de acesso do usuário deve ser informado"}}';
+
+        $usuarioDao = new \Dao\UsuarioDao();
+        $eventoDao = new \Dao\EventoDao();
+
+        $usuario = $usuarioDao->getUsuarioByToken($usuarioToken);
+
+        if($usuario == null)
+            return '{error: {text:"O token não pertence a nenhum usuário cadastrado"}}';
+
+        try{
+            $eventos = $eventoDao->getEventosByNome($usuario->id);
+
+            if($eventos == null)
+                return '{}';
+
+            return json_encode($eventos);
+        } catch (PDOException $e){
+            return '{error: {text:"'.$e->getMessage().'""}';
+        }
+    });
+
+

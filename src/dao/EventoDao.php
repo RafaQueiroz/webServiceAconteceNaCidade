@@ -90,7 +90,50 @@ class EventoDao {
         } catch (PDOException $e){
             echo $e->getMessage();
         }
+    }
 
+    public function getEventosByNome(string $eventoNome){
+        $sql = "SELECT 
+                  *
+                FROM 
+                  evento
+                WHERE
+                  UPPER (nome) 
+                LIKE
+                  UPPER (:eventoNome)";
+
+        $pdo = $this->db->connect();
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+            ':eventoNome' => "%$eventoNome%"
+        ));
+
+        $eventos =$stmt-> fetchAll(PDO::FETCH_OBJ);
+
+        return $eventos;
+    }
+
+    public function getEventosByProprietario(int $proprietarioId){
+        $sql = "SELECT 
+                  *
+                FROM 
+                  evento
+                WHERE
+                  proprietario_id 
+                LIKE
+                  :proprietarioId";
+
+        $pdo = $this->db->connect();
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(array(
+            ':proprietarioId' => $proprietarioId
+        ));
+
+        $eventos =$stmt-> fetchALl(PDO::FETCH_OBJ);
+
+        return $eventos;
     }
 
 }

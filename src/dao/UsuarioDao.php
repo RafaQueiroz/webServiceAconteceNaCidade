@@ -29,7 +29,7 @@ class UsuarioDao {
         $stmt->execute();
 
         $this->db = null;
-        $usuario = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $usuario = $stmt->fetch(PDO::FETCH_OBJ);
 
         return $usuario;
     }
@@ -44,7 +44,7 @@ class UsuarioDao {
 
         $stmt->execute();
         $this->db = null;
-        $usuario = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $usuario = $stmt->fetch(PDO::FETCH_OBJ);
 
         return $usuario;
     }
@@ -60,7 +60,7 @@ class UsuarioDao {
 
         $stmt->execute();
         $this->db = null;
-        $usuario = $stmt->fetchAll(PDO::FETCH_OBJ);
+        $usuario = $stmt->fetch(PDO::FETCH_OBJ);
 
         return $usuario;
     }
@@ -108,6 +108,36 @@ class UsuarioDao {
         return $usuario;
     }
 
+    public function deletar(int $usuarioId){
+        $sql = "DELETE FROM usuario WHERE id = :usuario_id";
 
+        $pdo = $this->db->connect();
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->execute(array(
+            ':usuario_id' => $usuarioId
+        ));
+    }
+
+    public function atualizaUsuario(int $usuarioId, string $nome, string $email, string $senha){
+        $sql = " 
+            UPDATE 
+              usuario 
+            SET 
+              nome = :nome, email = :email, senha = :senha
+            WHERE
+              id = :usuario_id";
+
+        $pdo = $this->db->connect();
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->execute(array(
+            ':nome' => $nome,
+            ':email' => $email,
+            ':senha' => $senha,
+            ':usuario_id' => $usuarioId
+        ));
+    }
 
 }
