@@ -3,11 +3,7 @@
 	use \PSR\Http\Message\ServerRequestInterface as Request;
 	use \PSR\Http\Message\ResponseInterface as Response;
 
-	require '../vendor/autoload.php';
-
-    require '../src/dao/EventoDao.php';
-
-	$app = new \Slim\App;
+    require __DIR__.'/../dao/EventoDao.php';
 
     $app->post('/eventos/adicionar', function(Request $request, Response $response){
 

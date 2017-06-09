@@ -3,17 +3,19 @@
 	use \PSR\Http\Message\ResponseInterface as Response;
 
 
-	require '../vendor/autoload.php';
+	require __DIR__.'/../vendor/autoload.php';
 
-    require '../src/config/Db.php';
+    require __DIR__.'/../src/config/Db.php';
 
-
-
-$app = new \Slim\App([
+    $app = new \Slim\App([
 		'settings' => [
 			'displayErrorDetails' => true
 		]
 	]);
+
+    $app->get('/', function(Request $request, Response $response){
+       return 'hello!';
+    });
 
 	$app->get('/hello/{name}', function (Request $request, Response $response) {
 	    $name = $request->getAttribute('name');
@@ -22,8 +24,7 @@ $app = new \Slim\App([
 	});
 
 	//ROTAS
-	require '../src/rotas/usuarios.php';
-
-	require '../src/rotas/eventos.php';
+	require __DIR__.'/../src/rotas/usuarios.php';
+	require __DIR__.'/../src/rotas/eventos.php';
 
 	$app->run();

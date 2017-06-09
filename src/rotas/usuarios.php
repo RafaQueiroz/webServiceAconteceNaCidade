@@ -3,12 +3,7 @@
 	use \PSR\Http\Message\ServerRequestInterface as Request;
 	use \PSR\Http\Message\ResponseInterface as Response;
 
-
-	require '../vendor/autoload.php';
-
-    require '../src/dao/UsuarioDao.php';
-
-	$app = new \Slim\App;
+    require __DIR__.'/../dao/UsuarioDao.php';
 
     $app->post('/usuarios/login', function (Request $request, Response $response){
 
